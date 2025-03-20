@@ -7,8 +7,6 @@
 #include "address_book_menu.h"
 #include "address_book.h"
 
-extern AddressBook *tempAddressBook;
-extern ContactInfo *tempContactInfo;
 
 int get_option(int type, const char *msg)
 {
@@ -72,17 +70,23 @@ Status list_contacts(AddressBook *address_book, const char *title, int *index, c
 	 * The menu provide navigation option if the entries increase the page size
 	 */ 
 
-	//FIX THIS TO LOOK LIKE THE PDF LATER ON
-	printf("\nYou listed contacts");
-	for (int i = 0; i < tempAddressBook->count; i++) {   
-		ContactInfo *ptr = tempAddressBook->list;
-		printf("\n %d, %s", (i+ptr)->si_no, (i+ptr)->name);
-		for (int j = 0; j < MAX_PHONE_NUMBERS; j++) {
-			printf(",%s", (i+ptr)->phone_numbers[j]);
+	menu_header("List Result:\n");
+	printf("\n===============================================================================================================");
+	printf("\n: S.No : Name                             : Phone No                       : Email ID                         :");
+	if (mode == e_list)
+	{
+		char buffer[NAME_LEN] = " ";
+		for (int i = 0; i < address_book->count; i++)
+		{
+			ContactInfo tempUser = address_book->list[i];
+			printf("\n===============================================================================================================");
+			printf("\n: %-4d : %-32s : %-30s : %-32s :", tempUser.si_no, tempUser.name, tempUser.phone_numbers, tempUser.email_addresses);
+			for (int j = 1; j < MAX_PHONE_NUMBERS; j++)
+			{
+				printf("\n: %-4s : %-32s : %-30s : %-32s :", buffer, buffer, tempUser.phone_numbers[j], tempUser.email_addresses[j]);
+			}
 		}
-		for (int j = 0; j < MAX_EMAILS; j++) {
-			printf(",%s", (i+ptr)->email_addresses[j]);
-		}
+		printf("\n===============================================================================================================");
 	}
 
 	char input[MAX_INPUT_LENGTH];
@@ -174,8 +178,8 @@ Status menu(AddressBook *address_book)
 
 Status add_contacts(AddressBook *address_book)
 {
+	menu_header("Add Contacts:\n");
 	/* Add the functionality for adding contacts here */
-	printf("\nYou added contacts");
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0) 
 	{
@@ -193,9 +197,9 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
 
 Status search_contact(AddressBook *address_book)
 {
+	menu_header("Search Contacts:\n");
 	/* Add the functionality for search contacts here */
 	/* Add the functionality for adding contacts here */
-	printf("\nYou searched contacts");
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0) 
 	{
@@ -207,9 +211,9 @@ Status search_contact(AddressBook *address_book)
 
 Status edit_contact(AddressBook *address_book)
 {
+	menu_header("Edit Contacts:\n");
 	/* Add the functionality for edit contacts here */
 	/* Add the functionality for adding contacts here */
-	printf("\nYou edited contacts");
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0) 
 	{
@@ -221,9 +225,9 @@ Status edit_contact(AddressBook *address_book)
 
 Status delete_contact(AddressBook *address_book)
 {
+	menu_header("Delete Contacts:\n");
 	/* Add the functionality for delete contacts here */
 	/* Add the functionality for adding contacts here */
-	printf("\nYou deleted contacts");
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0) 
 	{

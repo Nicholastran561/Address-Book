@@ -8,8 +8,6 @@
 
 #include "address_book.h"
 
-AddressBook *tempAddressBook;
-ContactInfo *tempContactInfo;
 
 Status load_file(AddressBook *address_book)
 {
@@ -32,11 +30,11 @@ Status load_file(AddressBook *address_book)
 
 		address_book->fp = fopen(DEFAULT_FILE, "r");
 
-		tempAddressBook = (AddressBook*) malloc(1 * sizeof(AddressBook));
+		ContactInfo *tempContactInfo;
 		tempContactInfo = (ContactInfo*) malloc(1 * sizeof(ContactInfo));
 
-		tempAddressBook->list = tempContactInfo;
-		tempAddressBook->count = 0;
+		address_book->list = tempContactInfo;
+		address_book->count = 0;
 		
 		while (!feof(address_book->fp))
 		{
@@ -48,7 +46,7 @@ Status load_file(AddressBook *address_book)
 			while (userDataToken != NULL)
 			{
 				index++;
-				ContactInfo *currentContact = (tempAddressBook->count)+tempContactInfo;
+				ContactInfo *currentContact = (address_book->count)+tempContactInfo;
 				if (index == 1)
 				{
 					(currentContact->si_no = atoi(userDataToken));
@@ -66,13 +64,13 @@ Status load_file(AddressBook *address_book)
 					strcpy(currentContact->email_addresses[index - 8], userDataToken);
 					if (index == 12)
 					{
-						tempAddressBook->count++;
+						address_book->count++;
 					}
 				}
 				
 				userDataToken = strtok(NULL, ",");
 				tempContactInfo = (ContactInfo*) realloc(tempContactInfo, (num_rows + 1) * sizeof(ContactInfo));
-				tempAddressBook->list = tempContactInfo;
+				address_book->list = tempContactInfo;
 			}
 		}
 		fclose(address_book->fp);
@@ -104,13 +102,13 @@ Status save_file(AddressBook *address_book)
 	 * Add the logic to save the file
 	 * Make sure to do error handling
 	 */ 
-	for (int i = 0; i < tempAddressBook->count; i++)
+	for (int i = 0; i < address_book->count; i++)
 	{
 		/*
 		Each row in the .csv will look like "si_no,name,phones 1-5,emails 1-5"
 		**Note** what I mean by "phones & emails 1-5" I am reffering to the numbers and emails seperated by commas
 		*/
-		ContactInfo *effectiveAddress = tempAddressBook->list + i;
+		ContactInfo *effectiveAddress = address_book->list + i;
 		fprintf(address_book->fp, "%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\n",
 			(effectiveAddress)->si_no,
 			(effectiveAddress)->name, 
