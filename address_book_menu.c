@@ -17,11 +17,11 @@ int get_option(int type, const char *msg)
 	int result = 0;
 	printf("%s", msg);
 	if (type != NONE) {
-		scanf("%s", option);
+		scanf("%s\n", option);
 	}
 	if (type == NUM) {
     	result = atoi(option);
-		printf("%d", result);
+		printf("%d\n", result);
 	}
 	if (type == CHAR) {
     	result = strtol(option, &ptr, 10);
