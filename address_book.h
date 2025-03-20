@@ -5,14 +5,20 @@
 
 /* Length of a contact name  */
 #define NAME_LEN					32
+/* Max number of phone numbers*/
+#define MAX_PHONE_NUMBERS			5
 /* Length of a phone number */
 #define NUMBER_LEN					32
+/* Max number of email addresses */
+#define MAX_EMAILS					5
 /* Length of an email address */
 #define EMAIL_ID_LEN				32
 
+#define MAX_ROW_CHAR 				1 + NAME_LEN + (MAX_PHONE_NUMBERS * NUMBER_LEN) + (MAX_EMAILS * EMAIL_ID_LEN)
+#define MAX_INPUT_LENGTH			255
 
-#define FIELD_DELIMITER				','
-#define NEXT_ENTRY					'\n'
+#define FIELD_DELIMITER				","
+#define NEXT_ENTRY					"\n"
 
 typedef int bool_t;
 
@@ -59,8 +65,8 @@ typedef enum
 typedef struct
 {
 	char name[NAME_LEN];
-	char phone_numbers[NUMBER_LEN];
-	char email_addresses[EMAIL_ID_LEN];
+	char phone_numbers[MAX_PHONE_NUMBERS][NUMBER_LEN];
+	char email_addresses[MAX_EMAILS][EMAIL_ID_LEN];
 	int si_no;
 } ContactInfo;
 
