@@ -1,5 +1,5 @@
-#ifndef ABK_FILEOPS_H
-#define ABK_FILEOPS_H
+#ifndef ADDRESS_BOOK_FILEOPS_H
+#define ADDRESS_BOOK_FILEOPS_H
 
 #include "address_book.h"
 
