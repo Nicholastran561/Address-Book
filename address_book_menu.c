@@ -520,7 +520,7 @@ Status delete_contact(AddressBook *address_book)
             {
                 printf(": %-5d\t: %-15s: %-20s: %-30s\n",
                     contact->si_no,
-                    contact->name[0],
+                    contact->name,
                     contact->phone_numbers[0],
                     contact->email_addresses[0]);
             }
