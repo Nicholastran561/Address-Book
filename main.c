@@ -9,7 +9,8 @@
 int main()
 {
     AddressBook book;
-    Status action = load_file(&book);
+    Status action = e_success;//load_file(&book);
+
     if (action == e_success)
     {
         action = menu(&book);
@@ -18,5 +19,6 @@ int main()
             save_prompt(&book);
         }
     }
+
     return 0;
 }
