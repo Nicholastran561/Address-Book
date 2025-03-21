@@ -9,11 +9,16 @@
 int main()
 {
     AddressBook book;
-    Status action = e_success;//load_file(&book);
+
+    //Default for if loading a file fails for whatever reason.
+    book.count = 0;
+
+    Status action = load_file(&book);
 
     if (action == e_success)
     {
         action = menu(&book);
+        
         if (action == e_success)
         {
             save_prompt(&book);

@@ -17,14 +17,15 @@ int get_option(int type, const char *msg)
 	int result = 0;
 
 	printf("%s", msg);
-	printf("%s", option);
+	//printf("%s", option);
 	
 	if (type != NONE) {
+		//fgets(option, sizeof(option), stdin);
 		scanf("%s", option);
 	}
 
 	if (type == NUM) {
-    	result = atoi(option);
+    	result = atol(option);//strtol(option, &ptr, 10);
 		printf("%d\n", result);
 	}
 
@@ -80,14 +81,15 @@ Status list_contacts(AddressBook *address_book, const char *title, int *index, c
 
 	//FIX THIS TO LOOK LIKE THE PDF LATER ON
 	printf("\nYou listed contacts");
-	for (int i = 0; i < tempAddressBook->count; i++) {   
-		ContactInfo *ptr = tempAddressBook->list;
-		printf("\n %d, %s", (i+ptr)->si_no, (i+ptr)->name);
+
+	for (int i = 0; i < address_book->count; i++) {   
+		ContactInfo *ptr = address_book->list;
+		printf("\n %d, %s", (i + ptr)->si_no, (i+ptr)->name);
 		for (int j = 0; j < MAX_PHONE_NUMBERS; j++) {
-			printf(",%s", (i+ptr)->phone_numbers[j]);
+			printf(", %s", (i+ptr)->phone_numbers[j]);
 		}
 		for (int j = 0; j < MAX_EMAILS; j++) {
-			printf(",%s", (i+ptr)->email_addresses[j]);
+			printf(", %s", (i+ptr)->email_addresses[j]);
 		}
 	}
 
@@ -111,7 +113,7 @@ void menu_header(const char *str)
 	#ifdef _WIN32
 		system("cls");
 	#else
-		system("clear");
+		//system("clear");
 	#endif
 
 	printf("#######  Address Book  #######\n");
@@ -138,38 +140,49 @@ void main_menu(void)
 
 Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	int amountOfNumbers;
+	char numbs[10];
+	char eNumbs[10];
 
-	printf("\n### Adding data to contact list. ###");
+	char *ptr;
+	char *ePtr;
+
+	printf("\n\n### Adding data to contact list. ###");
 
 	printf("\nWhat is the contact's name?: ");
-	scanf("%s", wList->name);
+	fgets(wList->name, sizeof(wList->name), stdin);
+	
+	//scanf("%s", wList->name);
 
 	//Phone numbers
 	do
 	{
 		printf("\nHow many phone numbers does the contact have? (Max numbers: %i): ", MAX_PHONE_NUMBERS);
-		scanf("%i", &amountOfNumbers);
+		fgets(numbs, sizeof(numbs), stdin);
+		amountOfNumbers = strtol(numbs, &ptr, 10);
+
 	} while (amountOfNumbers > MAX_PHONE_NUMBERS);
 
 	int i = 0;
 	for (; i < amountOfNumbers; ++i)
 	{
-		printf("\nEnter number %i of %s's numbers.", i, wList->name);
-		scanf("%s", wList->phone_numbers[i]);
+		printf("\nEnter number %i of %s's numbers.: ", i, wList->name);
+		fgets(wList->phone_numbers[i], sizeof(wList->phone_numbers[i]), stdin);
 	}
 
 	//Email addresses
 	do
 	{
 		printf("\nHow many email addresses does the contact have? (Max numbers: %i): ", MAX_EMAILS);
-		scanf("%i", &amountOfNumbers);
+		//scanf("%i", &amountOfNumbers);
+		fgets(eNumbs, sizeof(eNumbs), stdin);
+		amountOfNumbers = strtol(eNumbs, &ePtr, 10);
 	} while (amountOfNumbers > MAX_EMAILS);
 
 	i = 0;
 	for (; i < amountOfNumbers; ++i)
 	{
-		printf("\nEnter number %i of %s's emails.", i, wList->name);
-		scanf("%s", wList->email_addresses[i]);
+		printf("\nEnter number %i of %s's emails.: ", i, wList->name);
+		fgets(wList->email_addresses[i], sizeof(wList->email_addresses[i]), stdin);
 	}
 
 	wList->si_no = *_si_no;
@@ -179,13 +192,27 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 
 Status add_contacts(AddressBook *address_book)
 {
+	printf("\nYou are trying to add a contact!");
+	char input[MAX_INPUT_LENGTH];
+	//while(strcmp(input, "q") != 0) 
+	//{
+	printf("\nPress: [q] to Cancel: ");
+	
+	fflush(stdin);
+	fgets(input, sizeof(input), stdin);
+	//}
+
+	if (strcmp(input, "q") == 0) return e_fail;
+
+	printf("\nFirst allocating memory.");
+
 	int lCount = address_book->count;
 	int cCount = lCount; //TO compare;
 	ContactInfo *nList = address_book->list; //Not sure if malloc fails it will overwrite the data.
+	ContactInfo *nPointer;
 
 	lCount += 1;
-
-	printf("\nFirst allocating memory.");
+	address_book->count = lCount;
 
 	//If there are no contacts with in the book at this moment.
 	if (cCount == 0)
@@ -200,7 +227,8 @@ Status add_contacts(AddressBook *address_book)
 		}
 		else //Success
 		{
-			getContactInfo((nList + lCount), &lCount);
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
 		}
 	}
 	else
@@ -214,17 +242,13 @@ Status add_contacts(AddressBook *address_book)
 		}
 		else //Add
 		{
-			getContactInfo((nList + lCount), &lCount);
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
 		}
 	}
 
-	printf("\nYou added contacts");
-	char input[MAX_INPUT_LENGTH];
-	while(strcmp(input, "q") != 0) 
-	{
-		printf("\nPress: [q] to Cancel: ");
-		scanf("%s", input);
-	}
+	address_book->list = nList;
+
 	return e_success;
 }
 
@@ -288,10 +312,14 @@ Status menu(AddressBook *address_book)
 
 		option = get_option(NUM, "");
 
+		//printf("%d", option);
+		//printf("Count: %d", address_book->count);
+
 		if ((address_book->count == 0) && (option != e_add_contact))
 		{
-			get_option(NONE, "No entries found!!. Would you like to add? Use Add Contacts");
-
+			//get_option(NONE, "No entries found!!. Would you like to add? Use Add Contacts");
+			
+			printf("\nNo entries found!!. Would you like to add? Use Add Contacts.\n\n");
 			continue;
 		}
 
@@ -301,6 +329,7 @@ Status menu(AddressBook *address_book)
 			{
 				printf("\nLet's add a contact!");
 				add_contacts(address_book);
+				printf("\nDone with contacts!");
 				break;
 			}
 			case e_search_contact:
