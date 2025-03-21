@@ -119,7 +119,7 @@ void menu_header(const char *str)
 	//If your on windows use "cls" 
 	//If your on linux/mac use "clear"
 	//system("clear");
-	system("cls");
+	system("clear");
 
 	printf("#######  Address Book  #######\n");
 	if (*str != '\0')
@@ -256,6 +256,8 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
         printf("\nNo matching contacts found.\n");
         return e_success;
     }
+
+	menu_header("Search By Contact:\n");
 
     printf("\n===============================================================================================================");
     printf("\n: S.No : Name                             : Phone No                       : Email ID                         :");
