@@ -523,7 +523,6 @@ Status delete_contact(AddressBook *address_book)
                     contact->name[0],
                     contact->phone_numbers[0],
                     contact->email_addresses[0]);
-                return e_success;
             }
         }
 
