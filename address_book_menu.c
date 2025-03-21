@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -204,10 +205,144 @@ Status menu(AddressBook *address_book)
 	return e_success;
 }
 
+bool checkForBadChars(const char str[]) {
+	int i = 0;
+
+	if (strstr(str, ",") != NULL) return false;
+
+	return true;
+}
+
+Status getContactInfo(ContactInfo *wList, const int *_si_no) {
+	int amountOfNumbers;
+	char numbs[10];
+	char eNumbs[10];
+
+	char *ptr;
+	char *ePtr;
+
+	printf("\n\n### Adding data to contact list. ###");
+
+	//fflush(stdin);
+	do
+	{
+		printf("\nWhat is the contact's name?: ");
+		scanf("%s", wList->name);//, sizeof(wList->name), stdin);
+	} while (!checkForBadChars(wList->name));
+	
+	//scanf("%s", wList->name);
+	printf("%s", wList->name);
+
+	//Phone numbers
+	do
+	{
+		printf("\nHow many phone numbers does the contact have? (Max numbers: %i): ", MAX_PHONE_NUMBERS);
+		scanf("%s", numbs);//fgets(numbs, sizeof(numbs), stdin);
+		amountOfNumbers = atoi(numbs);
+
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_PHONE_NUMBERS;
+
+		if (amountOfNumbers >= MAX_PHONE_NUMBERS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers >= MAX_PHONE_NUMBERS);
+
+	int i = 0;
+	for (; i < MAX_PHONE_NUMBERS; ++i)
+	{
+		if (i >= amountOfNumbers)
+		{
+			wList->phone_numbers[i][0] = ' ';
+			wList->phone_numbers[i][1] = '\0';
+			continue;
+		}
+
+		printf("\nEnter number %i of %s's numbers.: ", i + 1, wList->name);
+		//fgets(wList->phone_numbers[i], sizeof(wList->phone_numbers[i]), stdin);
+		scanf("%s", wList->phone_numbers[i]);
+	}
+
+	//Email addresses
+	do
+	{
+		printf("\nHow many email addresses does the contact have? (Max numbers: %i): ", MAX_EMAILS);
+		scanf("%s", eNumbs);
+		amountOfNumbers = atoi(eNumbs);
+		//fgets(eNumbs, sizeof(eNumbs), stdin);
+		//amountOfNumbers = strtol(eNumbs, &ePtr, 10);
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_EMAILS;
+
+		if (amountOfNumbers >= MAX_EMAILS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers > MAX_EMAILS);
+
+	i = 0;
+	for (; i < MAX_EMAILS; ++i)
+	{
+		if (i >= amountOfNumbers)
+		{
+			wList->email_addresses[i][0] = ' ';
+			wList->email_addresses[i][1] = '\0';
+			continue;
+		}
+
+		printf("\nEnter number %i of %s's emails.: ", i + 1, wList->name);
+		//fgets(wList->email_addresses[i], sizeof(wList->email_addresses[i]), stdin);
+		scanf("%s", wList->email_addresses[i]);
+	}
+
+	wList->si_no = *_si_no;
+
+	return e_success;
+}
+
 Status add_contacts(AddressBook *address_book)
 {
 	menu_header("Add Contacts:\n");
-	/* Add the functionality for adding contacts here */
+	
+	printf("\nFirst allocating memory.");
+
+	int lCount = address_book->count;
+	int cCount = lCount; //TO compare;
+	ContactInfo *nList = address_book->list; //Not sure if malloc fails it will overwrite the data.
+	ContactInfo *nPointer;
+
+	lCount += 1;
+	address_book->count = lCount;
+
+	//If there are no contacts with in the book at this moment.
+	if (cCount == 0)
+	{
+		//Allocate memory within the list.
+		nList = (ContactInfo*) malloc(lCount * sizeof(ContactInfo));
+
+		if (nList == NULL) //Failed
+		{
+			printf("\nFailed to add the first person to contacts. Not enough memory.\n");
+			return e_fail;
+		}
+		else //Success
+		{
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
+		}
+	}
+	else
+	{
+		nList = (ContactInfo*) realloc(nList, lCount * sizeof(ContactInfo)); //Reallocate enough memory in storage;
+
+		if (nList == NULL)
+		{
+			printf("\nFailed to add the person to contacts. Not enough memory.\n");
+			return e_fail;
+		}
+		else //Add
+		{
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
+		}
+	}
+
+	address_book->list = nList;
+	
+	/*
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0)
 	{
@@ -215,9 +350,9 @@ Status add_contacts(AddressBook *address_book)
 		scanf("%s", input);
 		to_lowercase(input);
 	}
+	*/
 	return e_success;
 }
-
 Status search(const char *str, AddressBook *address_book, int loop_count, int field, const char *msg, Modes mode)
 {
 	if (address_book->count == 0)
