@@ -260,18 +260,18 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 		amountOfNumbers = atoi(eNumbs);
 		//fgets(eNumbs, sizeof(eNumbs), stdin);
 		//amountOfNumbers = strtol(eNumbs, &ePtr, 10);
-		if (amountOfNumbers <= 0) amountOfNumbers = MAX_PHONE_NUMBERS;
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_EMAILS;
 
-		if (amountOfNumbers >= MAX_PHONE_NUMBERS) printf("\nYou entered too much or a non integer value! Retry.\n");
-	} while (amountOfNumbers > MAX_PHONE_NUMBERS);
+		if (amountOfNumbers >= MAX_EMAILS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers > MAX_EMAILS);
 
 	i = 0;
 	for (; i < MAX_EMAILS; ++i)
 	{
 		if (i >= amountOfNumbers)
 		{
-			wList->phone_numbers[i][0] = ' ';
-			wList->phone_numbers[i][1] = '\0';
+			wList->email_addresses[i][0] = ' ';
+			wList->email_addresses[i][1] = '\0';
 			continue;
 		}
 
