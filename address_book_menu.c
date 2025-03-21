@@ -456,7 +456,7 @@ Status edit_contact(AddressBook *address_book)
 				list_contacts(tempBook, "", 0, "", e_list);
 
 				strcpy(input, "0");
-				printf("Select a Serial Number (S. No) to Edit: ");
+				printf("Select a Serial Number (S. No) to Edit [Press 0 to Exit]: ");
 				scanf("%s", input);
 				int tempSiNo = atoi(input);
 				
