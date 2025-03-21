@@ -119,7 +119,7 @@ void menu_header(const char *str)
 	//If your on windows use "cls" 
 	//If your on linux/mac use "clear"
 	//system("clear");
-	system("cls");
+	system("clear");
 
 	printf("#######  Address Book  #######\n");
 	if (*str != '\0')
@@ -257,24 +257,26 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
         return e_success;
     }
 
-    printf("\n====================================================================================");
-    printf("\n: S.No : Name                             : Phone No             : Email ID        :");
-    printf("\n====================================================================================");
+	menu_header("Search By Contact:\n");
+
+    printf("\n===============================================================================================================");
+    printf("\n: S.No : Name                             : Phone No                       : Email ID                         :");
+    printf("\n===============================================================================================================");
 
     for (int i = 0; i < result_count; i++)
     {
         ContactInfo *contact = results[i];
-        printf("\n: %-4d : %-32s : %-20s : %-15s :", 
+        printf("\n: %-4d : %-32s : %-30s : %-32s :", 
                 contact->si_no, contact->name, contact->phone_numbers[0], contact->email_addresses[0]);
 
         for (int j = 1; j < MAX_PHONE_NUMBERS; j++)
         {
             if (strlen(contact->phone_numbers[j]) > 0 || strlen(contact->email_addresses[j]) > 0)
             {
-                printf("\n: %-4s : %-32s : %-20s : %-15s :", "", "", contact->phone_numbers[j], contact->email_addresses[j]);
+                printf("\n: %-4s : %-32s : %-30s : %-32s :", "", "", contact->phone_numbers[j], contact->email_addresses[j]);
             }
         }
-        printf("\n====================================================================================");
+        printf("\n===============================================================================================================");
     }
 
 	return e_success;
