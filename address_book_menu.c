@@ -231,9 +231,10 @@ Status edit_contact(AddressBook *address_book)
 		AddressBook *tempBook = (AddressBook *)malloc(sizeof(AddressBook));
 		tempBook->list = (ContactInfo *)malloc(sizeof(ContactInfo) * address_book->count);
 		tempBook->count = 0;
-		char tempName[NAME_LEN];
+		//char tempName[NAME_LEN];
 		if (strcmp(input, "1") == 0)
 		{
+			char tempName[NAME_LEN];
 			printf("Enter the name: ");
 			scanf("%s", tempName);
 			for(int i = 0; i < address_book->count; i++)
@@ -253,7 +254,25 @@ Status edit_contact(AddressBook *address_book)
 		}
 		else if (strcmp(input, "2") == 0)
 		{
-
+			char tempNumber[NUMBER_LEN];
+			printf("Enter the Phone Number: ");
+			scanf("%s", tempNumber);
+			for(int i = 0; i < address_book->count; i++)
+			{
+				ContactInfo currentContact = address_book->list[i]; 
+				for (int j = 0; j < MAX_PHONE_NUMBERS; j++)
+				{
+					if(strcmp(currentContact.phone_numbers[j], tempNumber) == 0)
+					{
+						if (tempBook->count <= address_book->count)
+						{
+							tempBook->list[tempBook->count] = currentContact;
+							tempBook->count++;
+						}
+						
+					}
+				}
+			}
 		}
 		else if (strcmp(input, "3") == 0)
 		{
@@ -265,7 +284,6 @@ Status edit_contact(AddressBook *address_book)
 		}
 		if (tempBook->count > 0)
 			{
-				printf(tempName);
 				list_contacts(tempBook, "", 0, "", e_list);
 
 				strcpy(input, "0");
@@ -341,7 +359,7 @@ Status edit_contact(AddressBook *address_book)
 						scanf("%s", newEmail);
 						strcpy(editContact.email_addresses[eIndex], newEmail);
 					}
-					address_book->list[editContact.si_no] = editContact;
+					address_book->list[editContact.si_no - 1] = editContact;
 				}
 			}
 			else
