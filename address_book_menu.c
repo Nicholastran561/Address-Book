@@ -217,15 +217,18 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	do
 	{
 		printf("\nHow many phone numbers does the contact have? (Max numbers: %i): ", MAX_PHONE_NUMBERS);
-		scanf("%i", &amountOfNumbers);//fgets(numbs, sizeof(numbs), stdin);
-		//amountOfNumbers = strtol(numbs, &ptr, 10);
+		scanf("%s", numbs);//fgets(numbs, sizeof(numbs), stdin);
+		amountOfNumbers = atoi(numbs);
 
-	} while (amountOfNumbers > MAX_PHONE_NUMBERS);
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_PHONE_NUMBERS;
+
+		if (amountOfNumbers >= MAX_PHONE_NUMBERS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers >= MAX_PHONE_NUMBERS);
 
 	int i = 0;
 	for (; i < amountOfNumbers; ++i)
 	{
-		printf("\nEnter number %i of %s's numbers.: ", i, wList->name);
+		printf("\nEnter number %i of %s's numbers.: ", i + 1, wList->name);
 		//fgets(wList->phone_numbers[i], sizeof(wList->phone_numbers[i]), stdin);
 		scanf("%s", wList->phone_numbers[i]);
 	}
@@ -234,15 +237,19 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	do
 	{
 		printf("\nHow many email addresses does the contact have? (Max numbers: %i): ", MAX_EMAILS);
-		scanf("%i", &amountOfNumbers);
+		scanf("%s", eNumbs);
+		amountOfNumbers = atoi(eNumbs);
 		//fgets(eNumbs, sizeof(eNumbs), stdin);
 		//amountOfNumbers = strtol(eNumbs, &ePtr, 10);
-	} while (amountOfNumbers > MAX_EMAILS);
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_PHONE_NUMBERS;
+
+		if (amountOfNumbers >= MAX_PHONE_NUMBERS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers > MAX_PHONE_NUMBERS);
 
 	i = 0;
 	for (; i < amountOfNumbers; ++i)
 	{
-		printf("\nEnter number %i of %s's emails.: ", i, wList->name);
+		printf("\nEnter number %i of %s's emails.: ", i + 1, wList->name);
 		//fgets(wList->email_addresses[i], sizeof(wList->email_addresses[i]), stdin);
 		scanf("%s", wList->email_addresses[i]);
 	}
