@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -7,6 +8,14 @@
 #include "address_book_menu.h"
 #include "address_book.h"
 
+void to_lowercase(char *str)
+{
+	while (*str)
+	{
+		*str = tolower((unsigned char)*str);
+		str++;
+	}
+}
 
 int get_option(int type, const char *msg)
 {
@@ -26,14 +35,14 @@ int get_option(int type, const char *msg)
 		printf("%d\n", result);
 		printf("%s\n", ptr);
 		return *ptr;
-	} 
+	}
 	return result;
 	/*
 	 * Mutilfuction user intractions like
 	 * Just an enter key detection
 	 * Read an number
 	 * Read a charcter
-	 */ 
+	 */
 
 	/* Fill the code to add above functionality */
 }
@@ -64,11 +73,11 @@ Status save_prompt(AddressBook *address_book)
 
 Status list_contacts(AddressBook *address_book, const char *title, int *index, const char *msg, Modes mode)
 {
-	/* 
+	/*
 	 * Add code to list all the contacts availabe in address_book.csv file
 	 * Should be menu based
 	 * The menu provide navigation option if the entries increase the page size
-	 */ 
+	 */
 
 	menu_header("List Result:\n");
 
@@ -118,14 +127,14 @@ void menu_header(const char *str)
 {
 	fflush(stdout);
 
-	//If your on windows use "cls" 
+	//If your on windows use "cls"
 	//If your on linux/mac use "clear"
 	//system("clear");
 	#ifdef _WIN32
 	system("cls");
 	#else
 	system("clear");
-	#endif 
+	#endif
 
 	printf("#######  Address Book  #######\n");
 	if (*str != '\0')
@@ -196,19 +205,154 @@ Status menu(AddressBook *address_book)
 	return e_success;
 }
 
-Status add_contacts(AddressBook *address_book)
-{
-	menu_header("Add Contacts:\n");
-	/* Add the functionality for adding contacts here */
-	char input[MAX_INPUT_LENGTH];
-	while(strcmp(input, "q") != 0) 
+bool checkForBadChars(const char str[]) {
+	int i = 0;
+
+	if (strstr(str, ",") != NULL) return false;
+
+	return true;
+}
+
+Status getContactInfo(ContactInfo *wList, const int *_si_no) {
+	int amountOfNumbers;
+	char numbs[10];
+	char eNumbs[10];
+
+	char *ptr;
+	char *ePtr;
+
+	printf("\n\n### Adding data to contact list. ###");
+
+	//fflush(stdin);
+	do
 	{
-		printf("\nPress: [q] to Cancel: ");
-		scanf("%s", input);
+		printf("\nWhat is the contact's name?: ");
+		scanf("%s", wList->name);//, sizeof(wList->name), stdin);
+	} while (!checkForBadChars(wList->name));
+	
+	//scanf("%s", wList->name);
+	printf("%s", wList->name);
+
+	//Phone numbers
+	do
+	{
+		printf("\nHow many phone numbers does the contact have? (Max numbers: %i): ", MAX_PHONE_NUMBERS);
+		scanf("%s", numbs);//fgets(numbs, sizeof(numbs), stdin);
+		amountOfNumbers = atoi(numbs);
+
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_PHONE_NUMBERS;
+
+		if (amountOfNumbers >= MAX_PHONE_NUMBERS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers >= MAX_PHONE_NUMBERS);
+
+	int i = 0;
+	for (; i < MAX_PHONE_NUMBERS; ++i)
+	{
+		if (i >= amountOfNumbers)
+		{
+			wList->phone_numbers[i][0] = ' ';
+			wList->phone_numbers[i][1] = '\0';
+			continue;
+		}
+
+		printf("\nEnter number %i of %s's numbers.: ", i + 1, wList->name);
+		//fgets(wList->phone_numbers[i], sizeof(wList->phone_numbers[i]), stdin);
+		scanf("%s", wList->phone_numbers[i]);
 	}
+
+	//Email addresses
+	do
+	{
+		printf("\nHow many email addresses does the contact have? (Max numbers: %i): ", MAX_EMAILS);
+		scanf("%s", eNumbs);
+		amountOfNumbers = atoi(eNumbs);
+		//fgets(eNumbs, sizeof(eNumbs), stdin);
+		//amountOfNumbers = strtol(eNumbs, &ePtr, 10);
+		if (amountOfNumbers <= 0) amountOfNumbers = MAX_EMAILS;
+
+		if (amountOfNumbers >= MAX_EMAILS) printf("\nYou entered too much or a non integer value! Retry.\n");
+	} while (amountOfNumbers > MAX_EMAILS);
+
+	i = 0;
+	for (; i < MAX_EMAILS; ++i)
+	{
+		if (i >= amountOfNumbers)
+		{
+			wList->email_addresses[i][0] = ' ';
+			wList->email_addresses[i][1] = '\0';
+			continue;
+		}
+
+		printf("\nEnter number %i of %s's emails.: ", i + 1, wList->name);
+		//fgets(wList->email_addresses[i], sizeof(wList->email_addresses[i]), stdin);
+		scanf("%s", wList->email_addresses[i]);
+	}
+
+	wList->si_no = *_si_no;
+
 	return e_success;
 }
 
+Status add_contacts(AddressBook *address_book)
+{
+	menu_header("Add Contacts:\n");
+	
+	printf("\nFirst allocating memory.");
+
+	int lCount = address_book->count;
+	int cCount = lCount; //TO compare;
+	ContactInfo *nList = address_book->list; //Not sure if malloc fails it will overwrite the data.
+	ContactInfo *nPointer;
+
+	lCount += 1;
+	address_book->count = lCount;
+
+	//If there are no contacts with in the book at this moment.
+	if (cCount == 0)
+	{
+		//Allocate memory within the list.
+		nList = (ContactInfo*) malloc(lCount * sizeof(ContactInfo));
+
+		if (nList == NULL) //Failed
+		{
+			printf("\nFailed to add the first person to contacts. Not enough memory.\n");
+			return e_fail;
+		}
+		else //Success
+		{
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
+		}
+	}
+	else
+	{
+		nList = (ContactInfo*) realloc(nList, lCount * sizeof(ContactInfo)); //Reallocate enough memory in storage;
+
+		if (nList == NULL)
+		{
+			printf("\nFailed to add the person to contacts. Not enough memory.\n");
+			return e_fail;
+		}
+		else //Add
+		{
+			nPointer = (nList + cCount);
+			getContactInfo(nPointer, &lCount);
+		}
+	}
+
+	address_book->list = nList;
+	
+	/*
+	char input[MAX_INPUT_LENGTH];
+	while(strcmp(input, "q") != 0)
+	{
+		printf("\nPress: [q] to Cancel: ");
+		scanf("%s", input);
+		to_lowercase(input);
+	}
+	*/
+	return e_success;
+}
 Status search(const char *str, AddressBook *address_book, int loop_count, int field, const char *msg, Modes mode)
 {
 	if (address_book->count == 0)
@@ -217,7 +361,7 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
         return e_success;
     }
 
-    ContactInfo *results[address_book->count]; 
+    ContactInfo *results[address_book->count];
     int result_count = 0;
 
     for (int i = 0; i < address_book->count; i++)
@@ -245,7 +389,7 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
                 match_found = 1;
             }
         }
-		
+
 		if (contact->si_no == atoi(str))
 		{
 			match_found = 1;
@@ -272,7 +416,7 @@ Status search(const char *str, AddressBook *address_book, int loop_count, int fi
     for (int i = 0; i < result_count; i++)
     {
         ContactInfo *contact = results[i];
-        printf("\n: %-4d : %-32s : %-30s : %-32s :", 
+        printf("\n: %-4d : %-32s : %-30s : %-32s :",
                 contact->si_no, contact->name, contact->phone_numbers[0], contact->email_addresses[0]);
 
         for (int j = 1; j < MAX_PHONE_NUMBERS; j++)
@@ -314,8 +458,8 @@ Status search_contact(AddressBook *address_book)
     {
         printf("\nInvalid option!\n");
         return e_success;
-    } 
-	else if (search_option == 1) 
+    }
+	else if (search_option == 1)
 	{
 			printf("\nEnter the Name: ");
 	}
@@ -327,7 +471,7 @@ Status search_contact(AddressBook *address_book)
 	{
 		printf("\nEnter the Email: ");
 	}
-	else 
+	else
 	{
 		printf("\nEnter the Serial No: ");
 	}
@@ -352,10 +496,10 @@ Status edit_contact(AddressBook *address_book)
 	menu_header("Search Contact to Edit by:\n");
 	/* Add the functionality for edit contacts here */
 	/* Add the functionality for adding contacts here */
-	
+
 
 	char input[MAX_INPUT_LENGTH];
-	while(strcmp(input, "0") != 0) 
+	while(strcmp(input, "0") != 0)
 	{
 		strcpy(input, "");
 		printf("0. Back\n");
@@ -365,7 +509,7 @@ Status edit_contact(AddressBook *address_book)
 		printf("4. Serial Number\n");
 		printf("\nPlease select an option: ");
 		scanf("%s", input);
-		
+
 		AddressBook *tempBook = (AddressBook *)malloc(sizeof(AddressBook));
 		tempBook->list = (ContactInfo *)malloc(sizeof(ContactInfo) * address_book->count);
 		tempBook->count = 0;
@@ -377,7 +521,7 @@ Status edit_contact(AddressBook *address_book)
 			scanf("%s", tempName);
 			for(int i = 0; i < address_book->count; i++)
 			{
-				ContactInfo currentContact = address_book->list[i]; 
+				ContactInfo currentContact = address_book->list[i];
 				if(strcmp(currentContact.name, tempName) == 0)
 				{
 					if (tempBook->count <= address_book->count)
@@ -385,10 +529,10 @@ Status edit_contact(AddressBook *address_book)
 						tempBook->list[tempBook->count] = currentContact;
 						tempBook->count++;
 					}
-					
+
 				}
 			}
-			
+
 		}
 		else if (strcmp(input, "2") == 0)
 		{
@@ -397,7 +541,7 @@ Status edit_contact(AddressBook *address_book)
 			scanf("%s", tempNumber);
 			for(int i = 0; i < address_book->count; i++)
 			{
-				ContactInfo currentContact = address_book->list[i]; 
+				ContactInfo currentContact = address_book->list[i];
 				for (int j = 0; j < MAX_PHONE_NUMBERS; j++)
 				{
 					if(strcmp(currentContact.phone_numbers[j], tempNumber) == 0)
@@ -418,7 +562,7 @@ Status edit_contact(AddressBook *address_book)
 			scanf("%s", tempEmail);
 			for(int i = 0; i < address_book->count; i++)
 			{
-				ContactInfo currentContact = address_book->list[i]; 
+				ContactInfo currentContact = address_book->list[i];
 				for (int j = 0; j < MAX_EMAILS; j++)
 				{
 					if(strcmp(currentContact.email_addresses[j], tempEmail) == 0)
@@ -440,7 +584,7 @@ Status edit_contact(AddressBook *address_book)
 			int tempSN = atoi(tempSiNo);
 			for(int i = 0; i < address_book->count; i++)
 			{
-				ContactInfo currentContact = address_book->list[i]; 
+				ContactInfo currentContact = address_book->list[i];
 				if(currentContact.si_no == tempSN)
 				{
 					if (tempBook->count <= address_book->count)
@@ -459,9 +603,9 @@ Status edit_contact(AddressBook *address_book)
 				printf("Select a Serial Number (S. No) to Edit [Press 0 to Exit]: ");
 				scanf("%s", input);
 				int tempSiNo = atoi(input);
-				
+
 				ContactInfo editContact;
-				
+
 				for(int i = 0; i <= tempBook->count; i++)
 				{
 					ContactInfo currentContact = tempBook->list[i];
@@ -469,7 +613,7 @@ Status edit_contact(AddressBook *address_book)
 					{
 						editContact = currentContact;
 					}
-				} 
+				}
 				if (editContact.si_no == tempSiNo)
 				{
 					while(strcmp(input, "0") != 0)
@@ -549,14 +693,63 @@ Status edit_contact(AddressBook *address_book)
 
 Status delete_contact(AddressBook *address_book)
 {
-	menu_header("Delete Contacts:\n");
-	/* Add the functionality for delete contacts here */
-	/* Add the functionality for adding contacts here */
-	char input[MAX_INPUT_LENGTH];
-	while(strcmp(input, "q") != 0) 
-	{
-		printf("\nPress: [q] to Cancel: ");
-		scanf("%s", input);
-	}
-	return e_success;
+    system("cls");
+    char input[NAME_LEN];
+	int c;
+	while ((c = getchar()) != '\n' && c != EOF) { }
+
+    while (1)
+    {
+        printf("\nEnter name, phone, or email to search for deleting (Q to quit): ");
+        fgets(input, sizeof(input), stdin);
+        input[strcspn(input, "\n")] = '\0';
+        if (strlen(input) == 1 && (input[0] == 'Q' || input[0] == 'q'))
+        {
+            break;
+        }
+
+		printf("Searching for: [%s]\n", input);
+
+        system("cls");
+        printf("#######  Search results  #######\n");
+        printf("===============================================================================================\n");
+        printf(": %-5s\t: %-15s: %-20s: %-30s\n", "S.No", "Name", "Phone", "Email");
+        printf("===============================================================================================\n");
+
+        for (int i = 0; i < address_book->count; i++)
+        {
+            ContactInfo *contact = &address_book->list[i];
+
+            if (strstr(contact->name, input) ||
+                strstr(contact->phone_numbers[0], input) ||
+                strstr(contact->email_addresses[0], input))
+            {
+                printf(": %-5d\t: %-15s: %-20s: %-30s\n",
+                    contact->si_no,
+                    contact->name,
+                    contact->phone_numbers[0],
+                    contact->email_addresses[0]);
+            }
+        }
+
+        printf("\nEnter S.No of contact to delete. (Q to quit): ");
+        fgets(input, sizeof(input), stdin);
+        strtok(input, "\n");
+        if (strlen(input) == 1 && (input[0] == 'Q' || input[0] == 'q'))
+        {
+            break;
+        }
+
+        int sno = atoi(input);
+        ContactInfo *contact = &address_book->list[sno - 1];
+
+        for (int i = sno - 1; i < address_book->count - 1; i++)
+        {
+            address_book->list[i] = address_book->list[i + 1];
+            address_book->list[i].si_no = i + 1;
+        }
+        address_book->count--;
+        printf("Contact deleted successfully.\n");
+    }
+    return e_success;
 }
