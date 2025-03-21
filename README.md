@@ -1,7 +1,7 @@
 # Address-Book
-Collaborators
-Aaron Van Dell
-Nicholas Tran
-Andy Wu
-Gabriel Fernandez
-Jenson Dunham
+# Collaborators <br>
+Aaron Van Dell<br>
+Nicholas Tran <br>
+Andy Wu <br>
+Gabriel Fernandez <br>
+Jenson Dunham <br>
