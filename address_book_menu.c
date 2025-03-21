@@ -334,12 +334,14 @@ Status add_contacts(AddressBook *address_book)
 
 	address_book->list = nList;
 	
+	/*
 	char input[MAX_INPUT_LENGTH];
 	while(strcmp(input, "q") != 0) 
 	{
 		printf("\nPress: [q] to Cancel: ");
 		scanf("%s", input);
 	}
+	*/
 	return e_success;
 }
 Status search(const char *str, AddressBook *address_book, int loop_count, int field, const char *msg, Modes mode)
