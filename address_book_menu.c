@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -196,6 +197,14 @@ Status menu(AddressBook *address_book)
 	return e_success;
 }
 
+bool checkForBadChars(const char str[]) {
+	int i = 0;
+
+	if (strstr(str, ",") != NULL) return false;
+
+	return true;
+}
+
 Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	int amountOfNumbers;
 	char numbs[10];
@@ -207,8 +216,11 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	printf("\n\n### Adding data to contact list. ###");
 
 	//fflush(stdin);
-	printf("\nWhat is the contact's name?: ");
-	scanf("%s", wList->name);//, sizeof(wList->name), stdin);
+	do
+	{
+		printf("\nWhat is the contact's name?: ");
+		scanf("%s", wList->name);//, sizeof(wList->name), stdin);
+	} while (!checkForBadChars(wList->name));
 	
 	//scanf("%s", wList->name);
 	printf("%s", wList->name);
@@ -226,8 +238,15 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	} while (amountOfNumbers >= MAX_PHONE_NUMBERS);
 
 	int i = 0;
-	for (; i < amountOfNumbers; ++i)
+	for (; i < MAX_PHONE_NUMBERS; ++i)
 	{
+		if (i >= amountOfNumbers)
+		{
+			wList->phone_numbers[i][0] = ' ';
+			wList->phone_numbers[i][1] = '\0';
+			continue;
+		}
+
 		printf("\nEnter number %i of %s's numbers.: ", i + 1, wList->name);
 		//fgets(wList->phone_numbers[i], sizeof(wList->phone_numbers[i]), stdin);
 		scanf("%s", wList->phone_numbers[i]);
@@ -247,8 +266,15 @@ Status getContactInfo(ContactInfo *wList, const int *_si_no) {
 	} while (amountOfNumbers > MAX_PHONE_NUMBERS);
 
 	i = 0;
-	for (; i < amountOfNumbers; ++i)
+	for (; i < MAX_EMAILS; ++i)
 	{
+		if (i >= amountOfNumbers)
+		{
+			wList->phone_numbers[i][0] = ' ';
+			wList->phone_numbers[i][1] = '\0';
+			continue;
+		}
+
 		printf("\nEnter number %i of %s's emails.: ", i + 1, wList->name);
 		//fgets(wList->email_addresses[i], sizeof(wList->email_addresses[i]), stdin);
 		scanf("%s", wList->email_addresses[i]);
