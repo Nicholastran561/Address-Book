@@ -558,63 +558,118 @@ Status edit_contact(AddressBook *address_book)
 
 Status delete_contact(AddressBook *address_book)
 {
-    system("cls");
-    char input[NAME_LEN];
-	int c;
-	while ((c = getchar()) != '\n' && c != EOF) { }
-
-    while (1)
+    if (address_book->count == 0) 
     {
-        printf("\nEnter name, phone, or email to search for deleting (Q to quit): ");
-        fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = '\0';
-        if (strlen(input) == 1 && (input[0] == 'Q' || input[0] == 'q'))
-        {
-            break;
-        }
-
-		printf("Searching for: [%s]\n", input);
-
-        system("cls");
-        printf("#######  Search results  #######\n");
-        printf("===============================================================================================\n");
-        printf(": %-5s\t: %-15s: %-20s: %-30s\n", "S.No", "Name", "Phone", "Email");
-        printf("===============================================================================================\n");
-
-        for (int i = 0; i < address_book->count; i++)
-        {
-            ContactInfo *contact = &address_book->list[i];
-
-            if (strstr(contact->name, input) ||
-                strstr(contact->phone_numbers[0], input) ||
-                strstr(contact->email_addresses[0], input))
-            {
-                printf(": %-5d\t: %-15s: %-20s: %-30s\n",
-                    contact->si_no,
-                    contact->name,
-                    contact->phone_numbers[0],
-                    contact->email_addresses[0]);
-            }
-        }
-
-        printf("\nEnter S.No of contact to delete. (Q to quit): ");
-        fgets(input, sizeof(input), stdin);
-        strtok(input, "\n");
-        if (strlen(input) == 1 && (input[0] == 'Q' || input[0] == 'q'))
-        {
-            break;
-        }
-
-        int sno = atoi(input);
-        ContactInfo *contact = &address_book->list[sno - 1];
-
-        for (int i = sno - 1; i < address_book->count - 1; i++)
-        {
-            address_book->list[i] = address_book->list[i + 1];
-            address_book->list[i].si_no = i + 1;
-        }
-        address_book->count--;
-        printf("Contact deleted successfully.\n");
+        printf("\nNo contacts available to delete.\n");
+        return e_success;
     }
+
+    menu_header("Delete Contact:\n");
+
+	int search_option;
+    char search_term[MAX_INPUT_LENGTH];
+
+	strcpy(search_term, "");
+	printf("0. Back\n");
+	printf("1. Name\n");
+	printf("2. Phone Number\n");
+	printf("3. Email Address\n");
+	printf("4. Serial Number\n");
+	printf("\nPlease select an option: ");
+    scanf("%d", &search_option);
+    getchar();
+
+	if (search_option == 0)
+	{
+		return e_success;
+	}
+	else if (search_option == 1)
+	{
+		printf("\nEnter the Name: ");
+	}
+	else if (search_option == 2)
+	{
+		printf("\nEnter the Phone Number: ");
+	}
+	else if (search_option == 3)
+	{
+		printf("\nEnter the Email: ");
+	}
+	else
+	{
+		printf("\nEnter the Serial No: ");
+	}
+
+	fgets(search_term, MAX_INPUT_LENGTH, stdin);
+	search_term[strcspn(search_term, "\n")] = '\0';
+
+	search(search_term, address_book, 0, search_option, "", e_list);
+
+	char input[MAX_INPUT_LENGTH];
+
+	printf("\nPress: [s] = Select. [q] | Cancel: ");
+	fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = '\0'; 
+
+	if (input[0] == 'Q' || input[0] == 'q')
+	{
+		printf("\nDeletion cancelled.\n");
+        return e_success;
+	}
+
+    printf("\nSelect a Serial Number (S.No) to Delete: ");
+    fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = '\0'; 
+
+    int sno = atoi(input);
+    if (sno < 1 || sno > address_book->count) 
+    {
+        printf("\nInvalid Serial Number. Deletion cancelled.\n");
+        return e_success;
+    }
+
+	ContactInfo *contact = &address_book->list[sno - 1];
+
+	menu_header("Delete Contact:\n");
+
+	printf("\n0. Back");
+	printf("\n1. Name       : %-9s", contact->name);
+
+	printf("\n2. Phone No 1 : %s", contact->phone_numbers[0]);
+	for (int i = 1; i < MAX_PHONE_NUMBERS; i++) 
+	{
+		if (strlen(contact->phone_numbers[i]) > 0) 
+		{
+			printf("\n   Phone No %-1d :%s", i + 1, contact->phone_numbers[i]);
+		}
+	}
+	printf("\n3. Email ID 1 : %s", contact->email_addresses[0]);
+	for (int i = 1; i < MAX_EMAILS; i++) 
+	{
+		if (strlen(contact->email_addresses[i]) > 0) 
+		{
+			printf("\n   Email ID %-1d :%s", i + 1, contact->email_addresses[i]);
+		}
+	}
+
+    printf("\nEnter 'Y' to delete. [Press any key to ignore]: ");
+    fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = '\0';
+
+    if (input[0] != 'Y' || input[0] != 'y') 
+    {
+        printf("\nDeletion cancelled.\n");
+        return e_success;
+    }
+
+    for (int i = sno - 1; i < address_book->count - 1; i++) 
+    {
+        address_book->list[i] = address_book->list[i + 1];
+        address_book->list[i].si_no = i + 1; 
+    }
+
+    address_book->count--;
+    printf("\nContact deleted successfully.\n");
+
     return e_success;
 }
