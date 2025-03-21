@@ -72,6 +72,7 @@ Status list_contacts(AddressBook *address_book, const char *title, int *index, c
 
 	menu_header("List Result:\n");
 
+
     if (address_book->count == 0)
     {
         printf("\nNo contacts available.\n");
@@ -110,6 +111,7 @@ Status list_contacts(AddressBook *address_book, const char *title, int *index, c
     } while (strcmp(input, "q") != 0);
 
     return e_success;
+
 }
 
 void menu_header(const char *str)
@@ -347,14 +349,143 @@ Status search_contact(AddressBook *address_book)
 
 Status edit_contact(AddressBook *address_book)
 {
-	menu_header("Edit Contacts:\n");
+	menu_header("Search Contact to Edit by:\n");
 	/* Add the functionality for edit contacts here */
 	/* Add the functionality for adding contacts here */
+	
+
 	char input[MAX_INPUT_LENGTH];
-	while(strcmp(input, "q") != 0) 
+	while(strcmp(input, "0") != 0) 
 	{
-		printf("\nPress: [q] to Cancel: ");
+		strcpy(input, "");
+		printf("0. Back\n");
+		printf("1. Name\n");
+		printf("2. Phone Number\n");
+		printf("3. Email Address\n");
+		printf("4. Serial Number\n");
+		printf("\nPlease select an option: ");
 		scanf("%s", input);
+		
+		AddressBook *tempBook = (AddressBook *)malloc(sizeof(AddressBook));
+		tempBook->list = (ContactInfo *)malloc(sizeof(ContactInfo) * address_book->count);
+		tempBook->count = 0;
+		char tempName[NAME_LEN];
+		if (strcmp(input, "1") == 0)
+		{
+			printf("Enter the name: ");
+			scanf("%s", tempName);
+			for(int i = 0; i < address_book->count; i++)
+			{
+				ContactInfo currentContact = address_book->list[i]; 
+				if(strcmp(currentContact.name, tempName) == 0)
+				{
+					if (tempBook->count <= address_book->count)
+					{
+						tempBook->list[tempBook->count] = currentContact;
+						tempBook->count++;
+					}
+					
+				}
+			}
+			
+		}
+		else if (strcmp(input, "2") == 0)
+		{
+
+		}
+		else if (strcmp(input, "3") == 0)
+		{
+
+		}
+		else if (strcmp(input, "4") == 0)
+		{
+
+		}
+		if (tempBook->count > 0)
+			{
+				printf(tempName);
+				list_contacts(tempBook, "", 0, "", e_list);
+
+				strcpy(input, "0");
+				printf("Select a Serial Number (S. No) to Edit: ");
+				scanf("%s", input);
+				int tempSiNo = atoi(input);
+				
+				ContactInfo editContact;
+				for(int i = 0; i <= tempBook->count; i++)
+				{
+					ContactInfo currentContact = tempBook->list[i];
+					if (tempSiNo == currentContact.si_no)
+					{
+						editContact = currentContact;
+					}
+				}
+				while(strcmp(input, "0") != 0)
+				{
+					menu_header("Edit Contact:\n");
+					strcpy(input, "");
+					printf("0. Back\n");
+					printf("1. Name       : %s\n", editContact.name);
+					printf("2. Phone No 1 : %s\n", editContact.phone_numbers[0]);
+					for(int i = 1; i < MAX_PHONE_NUMBERS; i++)
+					{
+						if(strcmp(editContact.phone_numbers[i], "\0") != 0)
+						{
+							printf("            %d : %s\n", i + 1, editContact.phone_numbers[i]);
+						}
+					}
+					printf("3. Email ID 1 : %s\n", editContact.email_addresses[0]);
+					for(int i = 1; i < MAX_EMAILS; i++)
+					{
+						if(strcmp(editContact.email_addresses[i], "\0") != 0)
+						{
+							printf("            %d : %s\n", i + 1, editContact.email_addresses[i]);
+						}
+					}
+					printf("\nPlease select an option: ");
+					char editChoice[MAX_INPUT_LENGTH];
+					scanf("%s", editChoice);
+
+					if (strcmp(editChoice, "0") == 0)
+					{
+						strcpy(input, editChoice);
+					}
+					else if (strcmp(editChoice, "1") == 0)
+					{
+						char newName[NAME_LEN];
+						printf("Enter New Name: ");
+						scanf("%s", newName);
+						strcpy(editContact.name, newName);
+					}
+					else if (strcmp(editChoice, "2") == 0)
+					{
+						char newNumber[NUMBER_LEN];
+						char phoneIndex[MAX_INPUT_LENGTH];
+						printf("Enter Phone Number index to be changed [Max 5]: ");
+						scanf("%s", phoneIndex);
+						int pIndex = atoi(phoneIndex) - 1;
+						printf("Enter Phone Number %s [Just enter removes the entry]: ", phoneIndex);
+						scanf("%s", newNumber);
+						strcpy(editContact.phone_numbers[pIndex], newNumber);
+					}
+					else if (strcmp(editChoice, "3") == 0)
+					{
+						char newEmail[EMAIL_ID_LEN];
+						char emailIndex[MAX_INPUT_LENGTH];
+						printf("Enter Email Address index to be changed [Max 5]: ");
+						scanf("%s", emailIndex);
+						int eIndex = atoi(emailIndex) - 1;
+						printf("Enter Email Address %s [Just enter removes the entry]: ", emailIndex);
+						scanf("%s", newEmail);
+						strcpy(editContact.email_addresses[eIndex], newEmail);
+					}
+					address_book->list[editContact.si_no] = editContact;
+				}
+			}
+			else
+			{
+				printf("No such entry exists, try again:\n\n");
+			}
 	}
 	return e_success;
 }
