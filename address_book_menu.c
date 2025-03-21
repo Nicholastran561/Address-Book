@@ -407,14 +407,30 @@ Status edit_contact(AddressBook *address_book)
 							tempBook->list[tempBook->count] = currentContact;
 							tempBook->count++;
 						}
-						
 					}
 				}
 			}
 		}
 		else if (strcmp(input, "3") == 0)
 		{
-
+			char tempEmail[EMAIL_ID_LEN];
+			printf("Enter the Phone Number: ");
+			scanf("%s", tempEmail);
+			for(int i = 0; i < address_book->count; i++)
+			{
+				ContactInfo currentContact = address_book->list[i]; 
+				for (int j = 0; j < MAX_EMAILS; j++)
+				{
+					if(strcmp(currentContact.email_addresses[j], tempEmail) == 0)
+					{
+						if (tempBook->count <= address_book->count)
+						{
+							tempBook->list[tempBook->count] = currentContact;
+							tempBook->count++;
+						}
+					}
+				}
+			}
 		}
 		else if (strcmp(input, "4") == 0)
 		{
