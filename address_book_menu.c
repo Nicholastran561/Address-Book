@@ -119,7 +119,11 @@ void menu_header(const char *str)
 	//If your on windows use "cls" 
 	//If your on linux/mac use "clear"
 	//system("clear");
+	#ifdef _WIN32
+	system("cls");
+	#else
 	system("clear");
+	#endif 
 
 	printf("#######  Address Book  #######\n");
 	if (*str != '\0')
